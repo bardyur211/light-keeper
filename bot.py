@@ -82,7 +82,7 @@ async def stream_one(message: types.Message, bot: Bot, state: FSMContext):
                 for user in i:
                     linc_one = Linc
                     print(type(linc_one))
-                    mes = function.comd_text(text_list,str(linc_one))
+                    mes = function.comd_text(ext_list,str(linc_one))
                 await bot.send_message(user, mes)
         await message.answer('рассылка выполненна')
     
@@ -117,20 +117,22 @@ async def text(message: types.Message, command: CommandObject):
             con = sqlite3.connect(script_path / "data_base_for_users_id")
             cur = con.cursor()
             message_text = command.args
+            print(message_text, type(message_text))
             text = cur.execute('''SELECT text FROM greeting''')
             con.commit()
             if text is None:
-                cur.execute('''INSERT INTO greeting(text) VALUES(?,)''',
+                cur.execute('''INSERT INTO greeting(text) VALUES(?)''',
                             (message_text,))
                 con.commit()
             else:
-                cur.execute('''UPDATE greeting SET text VALUES(?)''',
+                cur.execute('''UPDATE greeting SET text = ? ''',
                             (message_text,))
+                con.commit()
             print('\n\n\nТекст был успешно изменён! \n\n\n ')
         else:
             await message.answer('У вас нет прав на изменение текста приветствия')
             print('''\n\n\nНесанкционированная попытка изменения текста
-                    \nПопытка изменения текста была предотращена\n\n\n''')
+                   \nПопытка изменения текста была предотращена\n\n\n''')
     except:
         print('''\n\n\n       Внимание!!!
         \nОшибка при выполнении функции\n\n\n''')
