@@ -27,6 +27,12 @@ dp = Dispatcher()
 class Linc(StatesGroup):
     linc = State()
 
+
+@dp.message(Command('reg'))
+async def reg(message: types.Message):
+
+
+
 # Функция для напоминания регистрации в боте
 @dp.message(Command("x"))
 async def x (message: types.Message):
@@ -72,20 +78,24 @@ async def stream(message: types.Message, state: FSMContext):
 @dp.message(Linc.linc)
 async def stream_one(message: types.Message, bot: Bot, state: FSMContext):
     await state.update_data(linc = message.text) # доделать комманду добавлением рассылки
+    date = await state.get_data()
+    print(date, type(date))
+    lst = []
     script_path = pathlib.Path(sys.argv[0]).parent
     con = sqlite3.connect(script_path / "data_base_for_users_id")
     cur = con.cursor()
     users = cur.execute("""SELECT user_id FROM users""").fetchall()
+    greeting_list = cur.execute('''SELECT text FROM greeting''').fetchone()
+    #linc_bd_one = cur.execute('''INSERT INTO greeting(linc) VALUES(?)''', ())
+    con.commit()
     if message.chat.type == 'private':
         if message.from_user.id == 2123919405 or message.from_user.id == 814370409:
-            for i in users:
-                for user in i:
-                    linc_one = Linc
-                    print(type(linc_one))
-                    mes = function.comd_text(ext_list,str(linc_one))
-                await bot.send_message(user, mes)
+            for greeting in greeting_list:
+                for i in users:
+                    for user in i:
+                            await bot.send_message(user, f'{date.get('linc')} \n\n {greeting}')
         await message.answer('рассылка выполненна')
-    
+
             
 
 #@dp.message(Command("Stream"))

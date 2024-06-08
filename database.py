@@ -10,7 +10,8 @@ cur.execute("""CREATE TABLE IF NOT EXISTS users(
 
 
 cur.execute('''CREATE TABLE IF NOT EXISTS greeting(
-            text STRING
+            text STRING 
+            linc STRING 
 )''')
 
 
