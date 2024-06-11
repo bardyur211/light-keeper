@@ -14,7 +14,6 @@ import sqlite3
 import random
 from Config_reader import config
 from aiogram.client.session.aiohttp import AiohttpSession
-from Function import function
 
 
 logging.basicConfig(level=logging.INFO)
@@ -29,12 +28,26 @@ class Linc(StatesGroup):
 
 
 @dp.message(Command('reg'))
-async def reg(message: types.Message):
-
-
+async def reg (message: types.Message):
+    script_path = pathlib.Path(sys.argv[0]).parent  # абсолютный путь до каталога, где лежит скрипт
+    con = sqlite3.connect(script_path / "data_base_for_users_id")  # формируем абсолютный путь до файла базы
+    cur = con.cursor()
+    cur.execute("SELECT * FROM users WHERE user_id=?", (message.from_user.id,))  # проверка на наличие id в бд
+    user = cur.fetchone()
+    if user is None:
+        cur.execute(""" INSERT INTO users (user_id, user_name) VALUES (?, ?)""",
+                    (message.from_user.id, message.from_user.full_name))
+        con.commit()
+        await message.answer(f'''Привет! Приятно познокомится {message.from_user.full_name}! \n
+    Регистрирую вас в базе данных. \n
+    Это необходимо для уведомлении вас о стримах.''')  # единоразовое приветствие
+    else:  # если пользователь есть в бд
+        otvet = ['И снова привет!', 'Опять работать?']
+        await message.answer(random.choice(otvet))
+    con.close()
 
 # Функция для напоминания регистрации в боте
-@dp.message(Command("x"))
+@dp.message(Command("x")) # rename function
 async def x (message: types.Message):
     while True:
         await message.answer("""Дорогие друзья! Хочу напомнить вам о необходимости регистрации в базе данных, \n так как в противном случае бот не сможет вам присылать уведомления
@@ -77,47 +90,21 @@ async def stream(message: types.Message, state: FSMContext):
 
 @dp.message(Linc.linc)
 async def stream_one(message: types.Message, bot: Bot, state: FSMContext):
-    await state.update_data(linc = message.text) # доделать комманду добавлением рассылки
+    await state.update_data(linc=message.text) # доделать комманду добавлением рассылки
     date = await state.get_data()
-    print(date, type(date))
-    lst = []
     script_path = pathlib.Path(sys.argv[0]).parent
     con = sqlite3.connect(script_path / "data_base_for_users_id")
     cur = con.cursor()
     users = cur.execute("""SELECT user_id FROM users""").fetchall()
     greeting_list = cur.execute('''SELECT text FROM greeting''').fetchone()
-    #linc_bd_one = cur.execute('''INSERT INTO greeting(linc) VALUES(?)''', ())
     con.commit()
     if message.chat.type == 'private':
         if message.from_user.id == 2123919405 or message.from_user.id == 814370409:
-            for greeting in greeting_list:
-                for i in users:
-                    for user in i:
-                            await bot.send_message(user, f'{date.get('linc')} \n\n {greeting}')
+            for i in users:
+                for user in i:
+                    await bot.send_message(user, f'{date.get('linc')} \n{greeting_list[0]}')
         await message.answer('рассылка выполненна')
-
-            
-
-#@dp.message(Command("Stream"))
-#async def mailing (message: types.message, command: CommandObject, bot: Bot):
-#    link_list = command.args.split(" ", maxsplit=1)
-#    column = -1
-#    script_path = pathlib.Path(sys.argv[0]).parent
-#    con = sqlite3.connect(script_path / "data_base_for_users_id")
-#    cur = con.cursor()
-#    if message.chat.type == 'private':
-#        if message.from_user.id == 2123919405 or message.from_user.id == 814370409:
-#            text = f'''Привет, друг! Заходи на стрим, я всегда тебе рад! \n {link}'''
-#            users = cur.execute("""SELECT user_id FROM users""").fetchall()
-#            for i in users:
-#                for user in i:
-#                    mes = comd_text(text_list,link(link_list))
-#                    await bot.send_message(user, mes)
-#            await message.answer('рассылка выполненна')
-#        else:
-#            await message.answer("К сожалению этой коммандой может пользоваться только админ!")
-
-
+    
 
 @dp.message(Command('text'))
 async def text(message: types.Message, command: CommandObject):
