@@ -142,10 +142,11 @@ async def users (message: types.Message):
         con = sqlite3.connect(script_path / "data_base_for_users_id")
         cur = con.cursor()
         users_db = cur.execute('''SELECT user_name FROM users''')
+        text = ''
         for user_list in users_db:
             for user_string in user_list:
-                message_answer_user = f'{user_string}\n'
-                await message.reply(f'Все пользователи зарегистрированные в базе данных \n{message_answer_user}')
+                text = f'{text + user_string}\n'
+        await message.reply(f'Все пользователи зарегистрированные в базе данных \n{text}')
         print('\n\n\nФункция успешно выполнена\nВсе пользователи зарегистрированные в базе данных выведены\n\n\n')
     except:
         print('\n\n\nОШИБКА\nВывод зарегистрированных пользователей не осуществлён из за ошибки\n\n\n')
