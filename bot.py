@@ -87,7 +87,7 @@ async def stream(message: types.Message, state: FSMContext):
     await state.set_state(Linc.linc)
     await message.answer('Введите ссылку на стрим')
 
-
+# check efficiency
 @dp.message(Linc.linc)
 async def stream_one(message: types.Message, bot: Bot, state: FSMContext):
     await state.update_data(linc=message.text) # доделать комманду добавлением рассылки
@@ -103,8 +103,10 @@ async def stream_one(message: types.Message, bot: Bot, state: FSMContext):
             for i in users:
                 for user in i:
                     await bot.send_message(user, f'{date.get('linc')} \n{greeting_list[0]}')
-        await message.answer('рассылка выполненна')
-    
+    await state.clear()
+    await message.answer('рассылка выполненна')
+
+
 
 @dp.message(Command('text'))
 async def text(message: types.Message, command: CommandObject):
@@ -147,9 +149,11 @@ async def users (message: types.Message):
             for user_string in user_list:
                 text = f'{text + user_string}\n'
         await message.reply(f'Все пользователи зарегистрированные в базе данных \n{text}')
+        con.close()
         print('\n\n\nФункция успешно выполнена\nВсе пользователи зарегистрированные в базе данных выведены\n\n\n')
     except:
         print('\n\n\nОШИБКА\nВывод зарегистрированных пользователей не осуществлён из за ошибки\n\n\n')
+        con.close()
      
 
 

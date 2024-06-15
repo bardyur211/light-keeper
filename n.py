@@ -1,8 +1,7 @@
-text_list = []
+x = input('enter your string')
 
-def app_list(message_text):
-    text_list.append(message_text)
 
-def list_raser():
-    for i in text_list:
-        print(i)
+def f (inp):
+    print(inp)
+
+f(x)
