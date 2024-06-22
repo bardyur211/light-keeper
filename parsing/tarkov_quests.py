@@ -1,4 +1,6 @@
 import requests
+from aiogram.types import KeyboardButton
+from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from bs4 import BeautifulSoup
 import lxml
 
@@ -12,8 +14,23 @@ responce_prapor = requests.get(url_prapor).text
 soup_prapor = BeautifulSoup(responce_prapor, 'lxml')
 all_quests_prapor = soup_prapor.find('div', 'articles-wrapper')
 cards_quest_prapor = all_quests_prapor.find('div', 'articles')
-name_quest_prapor = cards_quest_prapor.find_all('a')
+
+name_quest_prapor = cards_quest_prapor.find_all('a', 'article__title')
+
+def all_quest(per):
+    text = []
+    for i in per:
+        text.append(i.text)
+    return text
 
 
 
-print(name_quest_prapor)
+
+
+def inline_keyboard():
+    keyboard = ReplyKeyboardBuilder()
+    for i in all_quest(name_quest_prapor):
+        keyboard.add(KeyboardButton(text=i))
+    return keyboard.adjust(2).as_markup()
+
+

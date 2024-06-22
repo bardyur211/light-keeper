@@ -5,7 +5,7 @@ import pathlib
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command, CommandObject
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
-from aiogram.types import ContentType, Message
+from aiogram.types import ContentType, Message, CallbackQuery, KeyboardButton, InlineKeyboardButton
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 import sqlite3
@@ -182,11 +182,15 @@ async def quest(message: types.Message):
         types.KeyboardButton(text='Смотритель Маяка')
     )
     await message.answer('Выберите торговца',
-                         reply_markup=keyboard_traders.as_markup(resize_keyboard=True))
+                         reply_markup=keyboard_traders.as_markup(resize_keyboard=True, one_time_keyboard=True))
+
+x = ['name_0', 'name_1', 'name_2']
 
 @dp.message(F.text.lower()=='прапор')
 async def prapor(message: types.Message):
-    await message.answer('Проверка пройденна')# сдесь должен быть список всех квестов
+    await message.answer('Выберите квест', reply_markup=tarkov_quests.inline_keyboard())
+
+
 
 @dp.message(F.text.lower()=='терапевт')
 async def terapevt(message: types.Message):
