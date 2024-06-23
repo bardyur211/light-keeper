@@ -4,6 +4,8 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from bs4 import BeautifulSoup
 
 
+img_number = 0
+
 
 def all_quest(per):
     text = []
@@ -53,4 +55,28 @@ accomplishment_proverka_na_vshivost_1 = accomplishment_proverka_na_vshivost.find
 accomplishment_proverka_na_vshivost_2 = accomplishment_proverka_na_vshivost_1[4].text
 accomplishment_proverka_na_vshivost_3 = (accomplishment_proverka_na_vshivost_1[0].text + '\n' + accomplishment_proverka_na_vshivost_1[3].text + '\n'
                                          + '\n' + accomplishment_proverka_na_vshivost_2)
-#print(accomplishment_proverka_na_vshivost_1[4].text)
+
+url_piknik_so_strelboj = 'https://tarkov.help/ru/quest/piknik-so-strelboj'
+responce_piknik_so_strelboj = requests.get(url_piknik_so_strelboj).text
+soup_piknik_so_strelboj = BeautifulSoup(responce_piknik_so_strelboj, 'lxml')
+purpose_piknik_so_strelboj = soup_piknik_so_strelboj.find('div', 'quest-tab-goal').text
+purpose_piknik_so_strelboj = purpose_piknik_so_strelboj.strip('\n')
+accomplishment_piknik_so_strelboj = soup_piknik_so_strelboj.find('section', 'quest-guide').text
+accomplishment_piknik_so_strelboj =accomplishment_piknik_so_strelboj.replace('Как выполнить квест?', '')
+accomplishment_piknik_so_strelboj = accomplishment_piknik_so_strelboj.strip('\n')
+accomplishment_piknik_so_strelboj =accomplishment_piknik_so_strelboj.replace('Найти диких на карте', '')
+
+
+
+url_posylka_iz_proshlogo = 'https://tarkov.help/ru/quest/posylka-iz-proshlogo'
+responce_posylka_iz_proshlogo = requests.get(url_posylka_iz_proshlogo).text
+soup_posylka_iz_proshlogo = BeautifulSoup(responce_posylka_iz_proshlogo, 'lxml')
+purpose_posylka_iz_proshlogo = soup_posylka_iz_proshlogo.find('div', 'quest-tab-grid').text
+purpose_posylka_iz_proshlogo = purpose_posylka_iz_proshlogo.strip('\n').splitlines()
+def delete_none(list):
+    for i in list:
+        if i == '':
+             (list[i])
+    return(i)
+print(delete_none(purpose_posylka_iz_proshlogo))
+print(purpose_posylka_iz_proshlogo)
