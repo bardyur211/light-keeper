@@ -13,7 +13,7 @@ import random
 
 import parsing.tarkov_quests
 from Config_reader import config
-from parsing import guuntraker, tarkov_quests
+from parsing import guuntraker, tarkov_quests, dict
 
 # Config logging
 logging.basicConfig(level=logging.INFO)
@@ -157,15 +157,14 @@ async def users (message: types.Message):
     except:
         print('\n\n\nОШИБКА\nВывод зарегистрированных пользователей не осуществлён из за ошибки\n\n\n')
         con.close()
-     
-@dp.message(Command('goon'))
-async def goon(message: types.Message):
-    await message.reply(guuntraker.result)
 
 
-@dp.message(Command('quest'))
+@dp.message(Command('service'))
 async def quest(message: types.Message):
     keyboard_traders = ReplyKeyboardBuilder()
+    keyboard_traders.row(
+        types.KeyboardButton(text='Местонахождения Гунов')
+    )
     keyboard_traders.row(
         types.KeyboardButton(text='Прапор'),
         types.KeyboardButton(text='Терапевт'),
@@ -181,14 +180,21 @@ async def quest(message: types.Message):
         types.KeyboardButton(text='Егерь'),
         types.KeyboardButton(text='Смотритель Маяка')
     )
-    await message.answer('Выберите торговца',
+    keyboard_traders.row(
+        types.KeyboardButton(text='Назад')
+    )
+    await message.answer('Выберите услугу',
                          reply_markup=keyboard_traders.as_markup(resize_keyboard=True, one_time_keyboard=True))
 
-x = ['name_0', 'name_1', 'name_2']
 
-@dp.message(F.text.lower()=='прапор')
+@dp.message(F.text.lower() == 'местонахождения гунов')
+async def goon(message: types.Message):
+    await message.reply(guuntraker.result)
+
+
+@dp.message(F.text.lower() == 'прапор')
 async def prapor(message: types.Message):
-    await message.answer('Выберите квест', reply_markup=tarkov_quests.inline_keyboard())
+    await message.answer('Выберите квест', reply_markup=tarkov_quests.prapor_quest_keyboard())
 
 
 
@@ -223,6 +229,12 @@ async def forest_man(message: types.Message):
 @dp.message(F.text.lower()=='смотритель маяка')
 async def lighthouse_keeper(message: types.Message):
     await message.answer('Проверка пройденна')# сдесь должен быть список всех квестов
+
+
+@dp.message(F.text)
+async def quest(message: types.Message):
+    if message.text in dict.prapor:
+        await message.answer(dict.prapor[message.text])
 
 async def main():
     await dp.start_polling(BOT)
