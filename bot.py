@@ -10,10 +10,9 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 import sqlite3
 import random
-
-import parsing.tarkov_quests
+import guuntraker
 from Config_reader import config
-from parsing import guuntraker, tarkov_quests, dict
+
 
 # Config logging
 logging.basicConfig(level=logging.INFO)
@@ -159,82 +158,17 @@ async def users (message: types.Message):
         con.close()
 
 
-@dp.message(Command('service'))
-async def quest(message: types.Message):
-    keyboard_traders = ReplyKeyboardBuilder()
-    keyboard_traders.row(
-        types.KeyboardButton(text='Местонахождения Гунов')
-    )
-    keyboard_traders.row(
-        types.KeyboardButton(text='Прапор'),
-        types.KeyboardButton(text='Терапевт'),
-        types.KeyboardButton(text='Скупщик')
-    )
-    keyboard_traders.row(
-        types.KeyboardButton(text='Лыжник'),
-        types.KeyboardButton(text='Миротворец'),
-        types.KeyboardButton(text='Механик')
-    )
-    keyboard_traders.row(
-        types.KeyboardButton(text='Барахольщик'),
-        types.KeyboardButton(text='Егерь'),
-        types.KeyboardButton(text='Смотритель Маяка')
-    )
-    keyboard_traders.row(
-        types.KeyboardButton(text='Назад')
-    )
-    await message.answer('Выберите услугу',
-                         reply_markup=keyboard_traders.as_markup(resize_keyboard=True, one_time_keyboard=True))
-
-
-@dp.message(F.text.lower() == 'местонахождения гунов')
-async def goon(message: types.Message):
-    await message.reply(guuntraker.result)
-
-
-@dp.message(F.text.lower() == 'прапор')
-async def prapor(message: types.Message):
-    await message.answer('Выберите квест', reply_markup=tarkov_quests.prapor_quest_keyboard())
-
-
-
-@dp.message(F.text.lower()=='терапевт')
-async def terapevt(message: types.Message):
-    await message.answer('Проверка пройденна')# сдесь должен быть список всех квестов
-
-@dp.message(F.text.lower()=='скупщик')
-async def trader(message: types.Message):
-    await message.answer('Проверка пройденна')# сдесь должен быть список всех квестов
-
-@dp.message(F.text.lower()=='лыжник')
-async def snowraner(message: types.Message):
-    await message.answer('Проверка пройденна')# сдесь должен быть список всех квестов
-
-@dp.message(F.text.lower()=='миротворец')
-async def mirotvorec(message: types.Message):
-    await message.answer('Проверка пройденна')# сдесь должен быть список всех квестов
-
-@dp.message(F.text.lower()=='механик')
-async def mechanic(message: types.Message):
-    await message.answer('Проверка пройденна')# сдесь должен быть список всех квестов
-
-@dp.message(F.text.lower()=='барахольщик')
-async def trader_avito(message: types.Message):
-    await message.answer('Проверка пройденна')# сдесь должен быть список всех квестов
-
-@dp.message(F.text.lower()=='егерь')
-async def forest_man(message: types.Message):
-    await message.answer('Проверка пройденна')# сдесь должен быть список всех квестов
-
-@dp.message(F.text.lower()=='смотритель маяка')
-async def lighthouse_keeper(message: types.Message):
-    await message.answer('Проверка пройденна')# сдесь должен быть список всех квестов
-
-
 @dp.message(F.text)
 async def quest(message: types.Message):
-    if message.text in dict.prapor:
-        await message.answer(dict.prapor[message.text])
+    con = sqlite3.connect("database.db")
+    cur = con.cursor()
+    answer_quest = cur.execute('''SELECT purponse, guide FROM quest WHERE name_quest = ?''',
+                               (message.text.title(),)).fetchall()
+    for string in answer_quest:
+        await message.answer(message.text.title(), '\n', string)
+    
+        
+        
 
 async def main():
     await dp.start_polling(BOT)

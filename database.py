@@ -1,6 +1,6 @@
 import sqlite3
 
-con = sqlite3.connect('data_base_for_users_id')
+con = sqlite3.connect('database.db')
 cur = con.cursor()
 
 cur.execute("""CREATE TABLE IF NOT EXISTS users(
@@ -13,6 +13,13 @@ cur.execute('''CREATE TABLE IF NOT EXISTS greeting(
             text STRING 
             linc STRING 
 )''')
+
+
+
+cur.execute('''CREATE TABLE IF NOT EXISTS quest(
+    name_quest STRING,
+    purponse STRING,
+    guide STRING)''')
 
 
 
