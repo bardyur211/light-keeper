@@ -32,7 +32,7 @@ class Linc(StatesGroup):
 @dp.message(Command('reg'))
 async def reg (message: types.Message):
     script_path = pathlib.Path(sys.argv[0]).parent  # абсолютный путь до каталога, где лежит скрипт
-    con = sqlite3.connect(script_path / "data_base_for_users_id")  # формируем абсолютный путь до файла базы
+    con = sqlite3.connect(script_path / "database.db")  # формируем абсолютный путь до файла базы
     cur = con.cursor()
     cur.execute("SELECT * FROM users WHERE user_id=?", (message.from_user.id,))  # проверка на наличие id в бд
     user = cur.fetchone()
@@ -48,28 +48,12 @@ async def reg (message: types.Message):
         await message.answer(random.choice(otvet))
     con.close()
 
-
-# Function for send registration in bot
-@dp.message(Command("x")) # rename function
-async def x (message: types.Message):
-    while True:
-        await message.answer("""Дорогие друзья! Хочу напомнить вам о необходимости регистрации в базе данных, \n так как в противном случае бот не сможет вам присылать уведомления
-о начале стрима. \n \n Зарегистрироваться можно, написав команду /reg, после чего бот автоматически занесёт вас в базу данных.""")
-        await asyncio.sleep(86400)
-
-
-# Check ID new user-admin
-@dp.message(Command('admin_id'))
-async def admin(message: types.Message):
-    print(message.from_user.id)
-
-
 # this function monitoring new users
 @dp.message(F.content_type == ContentType.NEW_CHAT_MEMBERS)
 async def new_member_handler(message: Message):
     new_member = message.new_chat_members[0]
     script_path = pathlib.Path(sys.argv[0]).parent  # абсолютный путь до каталога, где лежит скрипт
-    con = sqlite3.connect(script_path / "data_base_for_users_id")  # формируем абсолютный путь до файла базы
+    con = sqlite3.connect(script_path / "database.db")  # формируем абсолютный путь до файла базы
     cur = con.cursor()
     cur.execute("SELECT * FROM users WHERE user_id=?", (message.from_user.id,))# проверка на наличие id в бд
     user = cur.fetchone()
@@ -117,7 +101,7 @@ async def stream_one(message: types.Message, bot: Bot, state: FSMContext):
 async def text(message: types.Message, command: CommandObject):
     if message.from_user.id == 2123919405 or message.from_user.id == 814370409:
         script_path = pathlib.Path(sys.argv[0]).parent
-        con = sqlite3.connect(script_path / "data_base_for_users_id")
+        con = sqlite3.connect(script_path / "database.db")
         cur = con.cursor()
         message_text = command.args
         print(message_text, type(message_text))
@@ -143,7 +127,7 @@ async def text(message: types.Message, command: CommandObject):
 async def users (message: types.Message):
     try:
         script_path = pathlib.Path(sys.argv[0]).parent
-        con = sqlite3.connect(script_path / "data_base_for_users_id")
+        con = sqlite3.connect(script_path / "database.db")
         cur = con.cursor()
         users_db = cur.execute('''SELECT user_name FROM users''')
         text = ''
@@ -162,10 +146,11 @@ async def users (message: types.Message):
 async def quest(message: types.Message):
     con = sqlite3.connect("database.db")
     cur = con.cursor()
-    answer_quest = cur.execute('''SELECT purponse, guide FROM quest WHERE name_quest = ?''',
-                               (message.text.title(),)).fetchall()
-    for string in answer_quest:
-        await message.answer(message.text.title(), '\n', string)
+    request = message.text[0].upper() + message.text[1:].lower()
+    cur.execute("SELECT purponse, guide FROM quest WHERE name_quest = ?", (request,))
+    quest_info = cur.fetchone()
+    await message.reply(f"{request.upper()}\n\nЦель: {quest_info[0]}\n\nГайд: {quest_info[1]}")
+        
     
         
         
