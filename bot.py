@@ -141,6 +141,36 @@ async def users (message: types.Message):
         print('\n\n\nОШИБКА\nВывод зарегистрированных пользователей не осуществлён из за ошибки\n\n\n')
         con.close()
 
+@dp.message(Command('service'))
+async def quest(message: types.Message):
+    keyboard_traders = ReplyKeyboardBuilder()
+    keyboard_traders.row(
+        types.KeyboardButton(text='Местонахождения Гунов')
+    )
+    keyboard_traders.row(
+        types.KeyboardButton(text='Прапор'),
+        types.KeyboardButton(text='Терапевт'),
+        types.KeyboardButton(text='Скупщик')
+    )
+    keyboard_traders.row(
+        types.KeyboardButton(text='Лыжник'),
+        types.KeyboardButton(text='Миротворец'),
+        types.KeyboardButton(text='Механик')
+    )
+    keyboard_traders.row(
+        types.KeyboardButton(text='Барахольщик'),
+        types.KeyboardButton(text='Егерь'),
+        types.KeyboardButton(text='Смотритель Маяка')
+    )
+    keyboard_traders.row(
+        types.KeyboardButton(text='Назад')
+    )
+    await message.answer('Выберите услугу',
+                         reply_markup=keyboard_traders.as_markup(resize_keyboard=True, one_time_keyboard=True))
+    
+@dp.message(F.text.lower() == 'местонахождения гунов')
+async def goon(message: types.Message):
+    await message.reply(guuntraker.result)
 
 @dp.message(F.text)
 async def quest(message: types.Message):
