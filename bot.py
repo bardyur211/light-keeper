@@ -26,7 +26,9 @@ dp = Dispatcher()
 class Linc(StatesGroup):
     linc = State()
 
-
+@dp.message(Command('help'))
+async def help(message: types.Message):
+    await message.answer('Привет, хочешь узнать что я могу?\nЯ могу уведомить тебя о начале стрима, и помочь с выполнением квеста.\nЧто бы я помог тебе с заданием просто напиши название квеста, помогу чем смогу')
 
 # Function for registration in bot
 @dp.message(Command('reg'))
@@ -141,34 +143,7 @@ async def users (message: types.Message):
         print('\n\n\nОШИБКА\nВывод зарегистрированных пользователей не осуществлён из за ошибки\n\n\n')
         con.close()
 
-@dp.message(Command('service'))
-async def quest(message: types.Message):
-    keyboard_traders = ReplyKeyboardBuilder()
-    keyboard_traders.row(
-        types.KeyboardButton(text='Местонахождения Гунов')
-    )
-    keyboard_traders.row(
-        types.KeyboardButton(text='Прапор'),
-        types.KeyboardButton(text='Терапевт'),
-        types.KeyboardButton(text='Скупщик')
-    )
-    keyboard_traders.row(
-        types.KeyboardButton(text='Лыжник'),
-        types.KeyboardButton(text='Миротворец'),
-        types.KeyboardButton(text='Механик')
-    )
-    keyboard_traders.row(
-        types.KeyboardButton(text='Барахольщик'),
-        types.KeyboardButton(text='Егерь'),
-        types.KeyboardButton(text='Смотритель Маяка')
-    )
-    keyboard_traders.row(
-        types.KeyboardButton(text='Назад')
-    )
-    await message.answer('Выберите услугу',
-                         reply_markup=keyboard_traders.as_markup(resize_keyboard=True, one_time_keyboard=True))
-    
-@dp.message(F.text.lower() == 'местонахождения гунов')
+@dp.message(Command('goon'))
 async def goon(message: types.Message):
     await message.reply(guuntraker.result)
 
@@ -180,11 +155,7 @@ async def quest(message: types.Message):
     cur.execute("SELECT purponse, guide FROM quest WHERE name_quest = ?", (request,))
     quest_info = cur.fetchone()
     await message.reply(f"{request.upper()}\n\nЦель: {quest_info[0]}\n\nГайд: {quest_info[1]}")
-        
     
-        
-        
-
 async def main():
     await dp.start_polling(BOT)
 
